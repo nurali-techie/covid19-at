@@ -15,9 +15,11 @@ type metric struct {
 }
 
 type CovidStat struct {
-	location string
-	infected uint64
-	deaths   uint64
+	Location   string
+	Infected   uint64
+	Deaths     uint64
+	Geo        location
+	Population uint64
 }
 
 type Exporter interface {

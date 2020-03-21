@@ -64,12 +64,12 @@ func (e *socialMinistryExporter) GetMetrics() (metrics, error) {
 
 	provinceMetrics := make(metrics, 0)
 	for _, s := range provinceStats {
-		tags := e.getTags(s.location)
-		population := e.mp.getPopulation(s.location)
-		if s.deaths > 0 {
-			provinceMetrics = append(provinceMetrics, metric{Name: "cov19_detail_dead", Value: float64(s.deaths), Tags: tags})
+		tags := e.getTags(s.Location)
+		population := e.mp.getPopulation(s.Location)
+		if s.Deaths > 0 {
+			provinceMetrics = append(provinceMetrics, metric{Name: "cov19_detail_dead", Value: float64(s.Deaths), Tags: tags})
 			if population > 0 {
-				provinceMetrics = append(provinceMetrics, metric{Name: "cov19_detail_fatality_rate", Value: fatalityRate(s.infected, s.deaths), Tags: tags})
+				provinceMetrics = append(provinceMetrics, metric{Name: "cov19_detail_fatality_rate", Value: fatalityRate(s.Infected, s.Deaths), Tags: tags})
 			}
 		}
 	}
@@ -80,7 +80,7 @@ func (e *socialMinistryExporter) GetMetrics() (metrics, error) {
 func (e *socialMinistryExporter) getTags(province string) *map[string]string {
 	if e.mp != nil && e.mp.getLocation(province) != nil {
 		location := e.mp.getLocation(province)
-		return &map[string]string{"country": "Austria", "province": province, "latitude": ftos(location.lat), "longitude": ftos(location.long)}
+		return &map[string]string{"country": "Austria", "province": province, "latitude": ftos(location.Lat), "longitude": ftos(location.Long)}
 	}
 	return &map[string]string{"country": "Austria", "province": province}
 }
@@ -97,23 +97,23 @@ func (e *socialMinistryExporter) getProvinceStats(document *goquery.Document) (m
 		return nil, errors.New(`Could not find "Bestätigte Fälle"`)
 	}
 
-	re := regexp.MustCompile(`(?P<location>\S+) \((?P<number>\d+)\)`)
+	re := regexp.MustCompile(`(?P<Location>\S+) \((?P<number>\d+)\)`)
 	matches := re.FindAllStringSubmatch(summaryMatch[0], -1)
 
 	for _, match := range matches {
 		infected := atoi(match[2])
 		province := strings.TrimSpace(strings.ReplaceAll(match[1], ",", ""))
-		result[province] = CovidStat{province, infected, 0}
+		result[province] = CovidStat{province, infected, 0, location{0, 0}, 0}
 
 	}
 
 	deathMatch := regexp.MustCompile(`Todesfälle.*`).FindAllString(summary, 1)
 	if len(deathMatch) > 0 {
-		matches := regexp.MustCompile(`(?P<number>\d+) \((?P<location>\S+)\)`).FindAllStringSubmatch(deathMatch[0], -1)
+		matches := regexp.MustCompile(`(?P<number>\d+) \((?P<Location>\S+)\)`).FindAllStringSubmatch(deathMatch[0], -1)
 		provinceIndex := 2
 		valueIndex := 1
 		if len(matches) == 0 {
-			matches = regexp.MustCompile(`(?P<location>\S+) \((?P<number>\d+)\)`).FindAllStringSubmatch(deathMatch[0], -1)
+			matches = regexp.MustCompile(`(?P<Location>\S+) \((?P<number>\d+)\)`).FindAllStringSubmatch(deathMatch[0], -1)
 			provinceIndex = 1
 			valueIndex = 2
 		}
@@ -121,7 +121,7 @@ func (e *socialMinistryExporter) getProvinceStats(document *goquery.Document) (m
 			if len(match) > 2 {
 				location := strings.TrimSpace(strings.ReplaceAll(match[provinceIndex], ",", ""))
 				stat := result[location]
-				stat.deaths = atoi(match[valueIndex])
+				stat.Deaths = atoi(match[valueIndex])
 				result[location] = stat
 			}
 		}
@@ -136,11 +136,6 @@ func (e *socialMinistryExporter) GetTotalStats(document *goquery.Document) (metr
 
 	if err != nil {
 		return nil, err
-	}
-
-	confirmedMatch := regexp.MustCompile(`Fälle:[^0-9]*([0-9\.]+)`).FindStringSubmatch(summary)
-	if len(confirmedMatch) >= 2 {
-		result = append(result, metric{Name: "cov19_confirmed", Value: atoif(confirmedMatch[1])})
 	}
 
 	testsMatch := regexp.MustCompile(`Testungen:[^0-9]*(?P<number>[0-9\.]+)`).FindAllStringSubmatch(summary, -1)

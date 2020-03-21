@@ -76,6 +76,15 @@ func TestMetrics(t *testing.T) {
 	assert.True(t, strings.Contains(metricResult, "cov19_detail_dead"))
 }
 
+func BenchmarkMetrics(b *testing.B) {
+
+	ts := httptest.NewServer(http.HandlerFunc(handleMetrics))
+	client := ts.Client()
+	for i := 0; i < b.N; i++ {
+		client.Get(ts.URL)
+	}
+}
+
 //func TestStartup(m *testing.T) {
 //	go main()
 //	os.Signal(syscall.SIGHUP)

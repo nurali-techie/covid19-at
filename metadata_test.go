@@ -45,7 +45,7 @@ func TestMetadataForBezirke(t *testing.T) {
 	for _, m := range metrics {
 		bezirk := (*m.Tags)["bezirk"]
 		assert.True(t, healthMinistryExporter.mp.getPopulation(bezirk) > 0, "Population lookup: "+bezirk)
-		assert.True(t, healthMinistryExporter.mp.getLocation(bezirk) != nil, "location lookup: "+bezirk)
+		assert.True(t, healthMinistryExporter.mp.getLocation(bezirk) != nil, "Location lookup: "+bezirk)
 	}
 }
 

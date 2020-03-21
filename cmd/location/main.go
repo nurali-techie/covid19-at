@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"strconv"
 )
 
 type mapsResponse struct {
@@ -51,10 +50,6 @@ func getLocation(location string, key string) (*mapLocation, error) {
 	}
 
 	return &mapLocation{latitude: result.Candidates[0].Geometry.Location.Lat, longitude: result.Candidates[0].Geometry.Location.Lng}, nil
-}
-
-func ftos(f float64) string {
-	return strconv.FormatFloat(f, 'f', 6, 64)
 }
 
 func main() {

@@ -102,7 +102,7 @@ func (h *healthMinistryExporter) Health() []error {
 
 func (h *healthMinistryExporter) getTags(location string, fieldName string, data *metaData) *map[string]string {
 	if data != nil {
-		return &map[string]string{fieldName: location, "country": "Austria", "longitude": ftos(data.location.long), "latitude": ftos(data.location.lat)}
+		return &map[string]string{fieldName: location, "country": "Austria", "longitude": ftos(data.location.Long), "latitude": ftos(data.location.Lat)}
 	}
 	return &map[string]string{fieldName: location, "country": "Austria"}
 }

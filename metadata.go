@@ -13,8 +13,8 @@ type metadataProvider struct {
 }
 
 type location struct {
-	lat  float64
-	long float64
+	Lat  float64
+	Long float64
 }
 
 type metaData struct {
@@ -60,7 +60,7 @@ func (l *metadataProvider) getMetadata(location string) *metaData {
 	return nil
 }
 
-//getLocation returns lat/long for a location name
+//getLocation returns Lat/Long for a Location name
 func (l *metadataProvider) getLocation(location string) *location {
 	if l, ok := l.data[normalizeName(location)]; ok {
 		return &l.location
@@ -68,7 +68,7 @@ func (l *metadataProvider) getLocation(location string) *location {
 	return nil
 }
 
-//getPopulation for a given location by name
+//getPopulation for a given Location by name
 func (l *metadataProvider) getPopulation(location string) uint64 {
 	if l, ok := l.data[normalizeName(location)]; ok {
 		return l.population
